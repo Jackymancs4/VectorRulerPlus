@@ -57,6 +57,7 @@
 }
 
 .bootstrap-frm input[type="text"],
+.bootstrap-frm input[type="number"],
 .bootstrap-frm input[type="email"],
 .bootstrap-frm textarea,
 .bootstrap-frm select {
