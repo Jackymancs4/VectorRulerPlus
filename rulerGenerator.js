@@ -1,9 +1,8 @@
 /* jshint asi: true*/
 var ruler = {}
 
-
 var limitTickQty = function () {
-    //Prevent it from crashing if it tries to render too many linest
+    // Prevent it from crashing if it tries to render too many linest
     ruler.ticksPerUnit = Math.pow(ruler.subUnitBase, ruler.subUnitExponent)
     ruler.masterTickQty = ruler.ticksPerUnit * ruler.width
     if (ruler.height > 100) {
@@ -30,12 +29,14 @@ var limitTickQty = function () {
         console.warn("Unreasonable exponent: " + ruler.ticksPerUnit)
         console.info("Resetting to reasonable")
         ruler.subUnitExponent = 1
-        document.getElementById("subUnitExponent")[ruler.subUnitExponent].selected = true;//selects resonable
+        // selects resonable
+        document.getElementById("subUnitExponent")[ruler.subUnitExponent].selected = true;
     }
 }
 
 var checkUnit = function () {
-    var pixelsPerInch = 72//I don't think this needs to be in the object....
+    // I don't think this needs to be in the object....
+    var pixelsPerInch = 72
     var pixelsPerCM = pixelsPerInch / ruler.cmPerInch
 
     if (ruler.units === "in") {
@@ -78,10 +79,12 @@ var checkSubUnitBase = function () {
         "1/64" + suffix,
     ]
 
-    if (ruler.subUnitBase === '10') {//Decimal!
+    // Decimal!
+    if (ruler.subUnitBase === '10') {
         ruler.subLabels = subLabelsDec
         document.getElementById("subUnitExponent")[3].disabled = true;
-        document.getElementById("subUnitExponent")[4].disabled = true;//disable the ones that crash.
+        // disable the ones that crash.
+        document.getElementById("subUnitExponent")[4].disabled = true;
         document.getElementById("subUnitExponent")[5].disabled = true;
         document.getElementById("subUnitExponent")[6].disabled = true;
 
@@ -89,12 +92,13 @@ var checkSubUnitBase = function () {
             document.getElementById("subUnitExponent")[i].text = ruler.subLabels[i]
         }
     }
-    else if (ruler.subUnitBase === '2') {//Fractional!
+    // Fractional!
+    else if (ruler.subUnitBase === '2') {
         ruler.subLabels = subLabelsFrac
-
         document.getElementById("subUnitExponent")[3].disabled = false;
         document.getElementById("subUnitExponent")[4].disabled = false;
-        document.getElementById("subUnitExponent")[5].disabled = false;//re-enable the ones that dont crash
+        // re-enable the ones that dont crash
+        document.getElementById("subUnitExponent")[5].disabled = false;
         document.getElementById("subUnitExponent")[6].disabled = false;
 
         for (var j = ruler.subLabels.length - 1; j >= 0; j--) {
@@ -118,15 +122,16 @@ var resizeSVG = function (svgRoot) {
     svgRoot.setAttribute("xmlns", "http://www.w3.org/2000/svg")
     svgRoot.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink")
     svgRoot.setAttribute("version", "1.1")
-
 }
 
 var constructRuler = function (svgRoot) {
-    ruler.tickArray = [];//for prevention of redunancy, an member for each tick
-    var layerArray = new Array(ruler.subUnitExponent)//Layers in the SVG file.
+    // for prevention of redunancy, an member for each tick
+    ruler.tickArray = [];
+    // Layers in the SVG file.
+    var layerArray = new Array(ruler.subUnitExponent)
 
     for (var exponentIndex = 0; exponentIndex <= ruler.subUnitExponent; exponentIndex++) {
-        //loop thru each desired level of ticks, inches, halves, quarters, etc....
+        // loop thru each desired level of ticks, inches, halves, quarters, etc....
         var tickQty = ruler.width * Math.pow(ruler.subUnitBase, exponentIndex)
 
         layerArray[exponentIndex] = document.createElementNS("http://www.w3.org/2000/svg", "g")
@@ -135,21 +140,21 @@ var constructRuler = function (svgRoot) {
         var startNo = $('#startNo').val();
 
         highestTickDenomonatorMultiplier = ruler.ticksPerUnit / Math.pow(ruler.subUnitBase, exponentIndex)
-        //to prevent reduntant ticks, this multiplier is applied to crrent units to ensure consistent indexing of ticks.
+        // to prevent reduntant ticks, this multiplier is applied to crrent units to ensure consistent indexing of ticks.
         for (var tickIndex = 0; tickIndex <= tickQty; tickIndex++) {
             ruler.masterTickIndex = highestTickDenomonatorMultiplier * tickIndex
-            // levelToLevelMultiplier =0.7
+            // levelToLevelMultiplier = 0.7
             var tickHeight
             tickHeight = ruler.height * Math.pow(ruler.levelToLevelMultiplier, exponentIndex)
 
             var tickSpacing = 1 / (Math.pow(ruler.subUnitBase, exponentIndex))
-            //spacing between ticks, the fundemental datum on a ruler :-)
+            // spacing between ticks, the fundemental datum on a ruler :-)
             var finalTick = false
             if (tickIndex === tickQty) { finalTick = true }
 
             var offsetTickIndex = parseInt(tickIndex) + parseInt(startNo)
             tick(layerArray[exponentIndex], tickHeight, 0, tickIndex, offsetTickIndex, exponentIndex, tickSpacing, finalTick);
-            //draws the ticks
+            // draws the ticks
         }
 
         svgRoot.appendChild(layerArray[exponentIndex])
@@ -159,11 +164,14 @@ var constructRuler = function (svgRoot) {
 }
 
 var tick = function (svgGroup, tickHeight, horizPosition, tickIndex, offsetTickIndex, exponentIndex, tickSpacing, finalTick) {
-    //exponentIndex is 0-6, how small it is, 6 being smallest
+    // exponentIndex is 0-6, how small it is, 6 being smallest
     var x1 = horizPosition + (tickSpacing * tickIndex)
-    var x2 = x1 //x === x because lines are vertical
-    var y1 = 0//all lines start at top of screen
-    var y2 = tickHeight//downward
+    // x === x because lines are vertical
+    var x2 = x1
+    // all lines start at top of screen
+    var y1 = 0
+    // downward
+    var y2 = tickHeight
 
     if (ruler.tickArray[ruler.masterTickIndex] === undefined || ruler.redundant) {
         // if no tick exists already, or if we want redundant lines, draw the tick.
@@ -173,26 +181,30 @@ var tick = function (svgGroup, tickHeight, horizPosition, tickIndex, offsetTickI
         line.setAttribute("y1", y1 + ruler.units)
         line.setAttribute("y2", y2 + ruler.units)
 
-        line.id = ruler.subLabels[exponentIndex] + " Tick no. " + tickIndex //label for SVG editor
-        line.style.stroke = "black";//color of ruler line
-        line.style.strokeWidth = "1";//width of ruler line in pixels
+        // label for SVG editor
+        line.id = ruler.subLabels[exponentIndex] + " Tick no. " + tickIndex
+        // color of ruler line
+        line.style.stroke = "black";
+        // width of ruler line in pixels
+        line.style.strokeWidth = "1";
 
         line.setAttribute("stroke", "#000000")
         line.setAttribute("stroke-width", "1")
 
-        ruler.tickArray[ruler.masterTickIndex] = true //register the tick so it is not duplicated
+        // register the tick so it is not duplicated
+        ruler.tickArray[ruler.masterTickIndex] = true
 
-        if (exponentIndex === 0) {//if is a primary tick, it needs a label
+        // if is a primary tick, it needs a label
+        if (exponentIndex === 0) {
             tickLabel(svgGroup, x1, y2, finalTick, offsetTickIndex, exponentIndex)
         }
 
         svgGroup.appendChild(line)
-
     }
 }
 
 var tickLabel = function (svgGroup, x1, y2, finalTick, tickIndex, exponentIndex) {
-    //label the tick
+    // label the tick
     var labelTextSize
     var labelTextSizeInches = 18
     var labelTextSizeCm = Math.round(labelTextSizeInches / ruler.cmPerInch)
@@ -207,20 +219,19 @@ var tickLabel = function (svgGroup, x1, y2, finalTick, tickIndex, exponentIndex)
     var xLabelOffset = 0.02
     var yLabelOffset = -0.02
 
-    if (finalTick) {
-        // last label is right justified
-        xLabelOffset = -0.02
-    }
-
     let text = document.createElementNS("http://www.w3.org/2000/svg", "text")
-    text.setAttribute("x", x1 + xLabelOffset + ruler.units)
-    text.setAttribute("y", y2 + yLabelOffset + ruler.units)
     text.setAttribute("text-anchor", "start")
 
     if (finalTick) {
-        //last label is right justified
+        // last label is right justified
+        xLabelOffset = -0.02
+        // last label is right justified
         text.setAttribute("text-anchor", "end")
     }
+
+    text.setAttribute("x", x1 + xLabelOffset + ruler.units)
+    text.setAttribute("y", y2 + yLabelOffset + ruler.units)
+
     text.style.color = 'black';
     // text.style.fontFamily = 'Helvetica'
     text.style.fontFamily = 'monospace'
@@ -230,13 +241,16 @@ var tickLabel = function (svgGroup, x1, y2, finalTick, tickIndex, exponentIndex)
 
     text.textContent = tickIndex;
 
-    // text.id = ruler.subLabels[exponentIndex] + " label no. " + tickIndex //label for SVG editor
+    // label for SVG editor
+    text.id = ruler.subLabels[exponentIndex] + " label no. " + tickIndex
+
     svgGroup.appendChild(text)
 }
 
 var debug = function () {
     console.info("--All the variables---")
-    console.info(ruler)//prints all attributes of ruler object
+    // prints all attributes of ruler object
+    console.info(ruler)
 }
 
 var updateVariables = function () {
@@ -289,16 +303,17 @@ var exportSvg = function () {
 
 $(document).ready(function () {
     console.log("\t Welcome to the Ruler Generator │╵│╵│╵│╵│╵│╵│")
-    //When document is loaded, call build once
+    // When document is loaded, call build once
     build()
-    debug()//prints all values to browser console
+    // prints all values to browser console
+    debug()
 
     $("#rulerParameters").change(function () {
-        //anytime anything within the form is altered, call build again
+        // anytime anything within the form is altered, call build again
         build()
-        debug()//prints all values to browser console
+        // prints all values to browser console
+        debug()
     });
 
     exportSvg()
-
 });
