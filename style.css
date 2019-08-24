@@ -78,7 +78,7 @@
 	/*content: "\2193";*/
     /*background: #FFF url('down-arrow.png') no-repeat right;*/
     appearance:none;
-    -webkit-appearance:none; 
+    -webkit-appearance:none;
     -moz-appearance: none;
     text-indent: 0.01px;
     text-overflow: '';
@@ -106,11 +106,11 @@
     border-color: #ADADAD;
 }
 
-.bootstrap-frm .ribbon { 
+.bootstrap-frm .ribbon {
     position: relative;
     padding:0px 0px 0px 0px;
     float: right;
-    margin-top: 0px; 
+    margin-top: 0px;
 }
 .bootstrap-frm .ribbon img {
     position: absolute;
@@ -119,4 +119,3 @@
 input[type=radio] {
   display: inline;
 }
-

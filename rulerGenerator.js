@@ -158,7 +158,7 @@ var tick = function(tickHeight, horizPosition, tickIndex, offsetTickIndex, expon
             if (exponentIndex === 0) {//if is a primary tick, it needs a label
                 tickLabel(x1,y2,finalTick,offsetTickIndex,exponentIndex)
             }
-    }   
+    }
 }
 
 var tickLabel = function(x1,y2,finalTick,tickIndex,exponentIndex){
@@ -219,7 +219,7 @@ var build = function(){
 
 var exportSvg = function(){
     //* I referenced the excellent SVG export example here: http://paperjs.org/features/#svg-import-and-export
-    document.getElementById("svgexpbutton").onclick = 
+    document.getElementById("svgexpbutton").onclick =
     function(){
         exportWidth = document.getElementById("myCanvas").width
         exportHeight = document.getElementById("myCanvas").height
@@ -237,7 +237,7 @@ var exportSvg = function(){
 
 }
 
-$(document).ready(function(){ 
+$(document).ready(function(){
     console.log("\t Welcome to the Ruler Generator │╵│╵│╵│╵│╵│╵│")
     //When document is loaded, call build once
     build()
