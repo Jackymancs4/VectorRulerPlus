@@ -34,11 +34,11 @@ var checkUnit = function () {
     var pixelsPerInch = 72//I don't think this needs to be in the object....
     var pixelsPerCM = pixelsPerInch / ruler.cmPerInch
 
-    if (ruler.units === "inches") {
+    if (ruler.units === "in") {
         ruler.pixelsPerUnit = pixelsPerInch
         ruler.unitsAbbr = "\"in."
     }
-    else if (ruler.units === "centimeters") {
+    else if (ruler.units === "cm") {
         ruler.unitsAbbr = "cm."
         ruler.pixelsPerUnit = pixelsPerCM
     }
@@ -106,10 +106,10 @@ var resizeSVG = function (svgRoot) {
     svgRoot.setAttribute("x", "0")
     svgRoot.setAttribute("y", "0")
 
-    svgRoot.setAttribute("width", ruler.width + "in")
-    svgRoot.setAttribute("height", ruler.height + "in")
+    svgRoot.setAttribute("width", ruler.width + ruler.units)
+    svgRoot.setAttribute("height", ruler.height + ruler.units)
 
-    svgRoot.setAttribute("viewBox", "0in 0in " + ruler.width + "in" + ruler.height + "in")
+    svgRoot.setAttribute("viewBox", "0" + ruler.units + " 0" + ruler.units + " " + ruler.width + ruler.units + "" + ruler.height +  + ruler.units)
 
     svgRoot.setAttribute("xmlns", "http://www.w3.org/2000/svg")
     svgRoot.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink")
@@ -125,8 +125,6 @@ var constructRuler = function (svgRoot) {
         //loop thru each desired level of ticks, inches, halves, quarters, etc....
         var tickQty = ruler.width * Math.pow(ruler.subUnitBase, exponentIndex)
 
-        // fill="none" stroke="none" stroke-width="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" mix-blend-mode="normal"
-
         layerArray[exponentIndex] = document.createElement("g")
         layerArray[exponentIndex].id = ruler.subLabels[exponentIndex] + " Tick Group";
 
@@ -138,9 +136,9 @@ var constructRuler = function (svgRoot) {
             ruler.masterTickIndex = highestTickDenomonatorMultiplier * tickIndex
             // levelToLevelMultiplier =0.7
             var tickHeight
-            tickHeight = ruler.heightPixels * Math.pow(ruler.levelToLevelMultiplier, exponentIndex)
+            tickHeight = ruler.height * Math.pow(ruler.levelToLevelMultiplier, exponentIndex)
 
-            var tickSpacing = ruler.pixelsPerUnit / (Math.pow(ruler.subUnitBase, exponentIndex))
+            var tickSpacing = 1 / (Math.pow(ruler.subUnitBase, exponentIndex))
             //spacing between ticks, the fundemental datum on a ruler :-)
             var finalTick = false
             if (tickIndex === tickQty) { finalTick = true }
@@ -166,10 +164,10 @@ var tick = function (svgGroup, tickHeight, horizPosition, tickIndex, offsetTickI
     if (ruler.tickArray[ruler.masterTickIndex] === undefined || ruler.redundant) {
         // if no tick exists already, or if we want redundant lines, draw the tick.
         let line = document.createElementNS("http://www.w3.org/2000/svg", "line")
-        line.setAttribute("x1", x1)
-        line.setAttribute("x2", x2)
-        line.setAttribute("y1", y1)
-        line.setAttribute("y2", y2)
+        line.setAttribute("x1", x1 + ruler.units)
+        line.setAttribute("x2", x2 + ruler.units)
+        line.setAttribute("y1", y1 + ruler.units)
+        line.setAttribute("y2", y2 + ruler.units)
 
         line.id = ruler.subLabels[exponentIndex] + " Tick no. " + tickIndex //label for SVG editor
         line.style.stroke = "black";//color of ruler line
@@ -195,31 +193,29 @@ var tickLabel = function (svgGroup, x1, y2, finalTick, tickIndex, exponentIndex)
     var labelTextSizeInches = 18
     var labelTextSizeCm = Math.round(labelTextSizeInches / ruler.cmPerInch)
 
-    if (ruler.units === "inches") {
+    if (ruler.units === "in") {
         labelTextSize = labelTextSizeInches;
     }
     else {
         labelTextSize = labelTextSizeCm
     }
 
-    var xLabelOffset = 4
-    var yLabelOffset = 1
+    var xLabelOffset = 0.02
+    var yLabelOffset = -0.02
 
     if (finalTick) {
         // last label is right justified
-        xLabelOffset = -1 * xLabelOffset
+        xLabelOffset = -0.02
     }
 
     let text = document.createElementNS("http://www.w3.org/2000/svg", "text")
-    text.setAttribute("x", x1 + xLabelOffset)
-    text.setAttribute("y", y2 + yLabelOffset)
+    text.setAttribute("x", x1 + xLabelOffset + ruler.units)
+    text.setAttribute("y", y2 + yLabelOffset + ruler.units)
+    text.setAttribute("text-anchor", "start")
 
-    console.log(text)
-
-    text.style.justifyContent = 'left';
     if (finalTick) {
         //last label is right justified
-        text.style.justifyContent = 'right';
+        text.setAttribute("text-anchor", "end")
     }
     text.style.color = 'black';
     // text.style.fontFamily = 'Helvetica'
@@ -253,8 +249,8 @@ var updateVariables = function () {
 var build = function () {
     let svgContainer = document.getElementById("svgContainer")
     let svgs = document.querySelector("#svgContainer > svg")
-    if (svgs.length > 0) {
-        svgContainer.removeChild(svgs[0])
+    if (svgs) {
+        svgContainer.removeChild(svgs)
     }
 
     let svgDoc = document.implementation.createDocument("http://www.w3.org/2000/svg", "svg", null);
