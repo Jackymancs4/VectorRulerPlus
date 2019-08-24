@@ -102,21 +102,33 @@ var checkSubUnitBase = function () {
     }
 }
 
-var resizeCanvas = function () {
-    document.getElementById("myCanvas").width = ruler.width * ruler.pixelsPerUnit;
-    heightAddend = 50
-    document.getElementById("myCanvas").height = heightAddend + ruler.height * ruler.pixelsPerUnit;
+var resizeSVG = function (svgRoot) {
+    svgRoot.setAttribute("x", "0")
+    svgRoot.setAttribute("y", "0")
+
+    svgRoot.setAttribute("width", ruler.width + "in")
+    svgRoot.setAttribute("height", ruler.height + "in")
+
+    svgRoot.setAttribute("viewBox", "0in 0in " + ruler.width + "in" + ruler.height + "in")
+
+    svgRoot.setAttribute("xmlns", "http://www.w3.org/2000/svg")
+    svgRoot.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink")
+    svgRoot.setAttribute("version", "1.1")
+
 }
 
-var constructRuler = function () {
+var constructRuler = function (svgRoot) {
     ruler.tickArray = [];//for prevention of redunancy, an member for each tick
     var layerArray = new Array(ruler.subUnitExponent)//Layers in the SVG file.
 
     for (var exponentIndex = 0; exponentIndex <= ruler.subUnitExponent; exponentIndex++) {
         //loop thru each desired level of ticks, inches, halves, quarters, etc....
         var tickQty = ruler.width * Math.pow(ruler.subUnitBase, exponentIndex)
-        layerArray[exponentIndex] = new paper.Layer();
-        layerArray[exponentIndex].name = ruler.subLabels[exponentIndex] + " Tick Group";
+
+        // fill="none" stroke="none" stroke-width="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" mix-blend-mode="normal"
+
+        layerArray[exponentIndex] = document.createElement("g")
+        layerArray[exponentIndex].id = ruler.subLabels[exponentIndex] + " Tick Group";
 
         var startNo = $('#startNo').val();
 
@@ -134,13 +146,17 @@ var constructRuler = function () {
             if (tickIndex === tickQty) { finalTick = true }
 
             var offsetTickIndex = parseInt(tickIndex) + parseInt(startNo)
-            tick(tickHeight, 0, tickIndex, offsetTickIndex, exponentIndex, tickSpacing, finalTick);
+            tick(svgRoot, tickHeight, 0, tickIndex, offsetTickIndex, exponentIndex, tickSpacing, finalTick);
             //draws the ticks
         }
+
+        // svgRoot.appendChild(layerArray[exponentIndex])
     }
+
+
 }
 
-var tick = function (tickHeight, horizPosition, tickIndex, offsetTickIndex, exponentIndex, tickSpacing, finalTick) {
+var tick = function (svgGroup, tickHeight, horizPosition, tickIndex, offsetTickIndex, exponentIndex, tickSpacing, finalTick) {
     //exponentIndex is 0-6, how small it is, 6 being smallest
     var x1 = horizPosition + (tickSpacing * tickIndex)
     var x2 = x1 //x === x because lines are vertical
@@ -149,40 +165,73 @@ var tick = function (tickHeight, horizPosition, tickIndex, offsetTickIndex, expo
 
     if (ruler.tickArray[ruler.masterTickIndex] === undefined || ruler.redundant) {
         // if no tick exists already, or if we want redundant lines, draw the tick.
-        var line = new paper.Path.Line([x1, y1], [x2, y2]);//actual line instance
-        line.name = ruler.subLabels[exponentIndex] + " Tick no. " + tickIndex //label for SVG editor
-        line.strokeColor = "black";//color of ruler line
-        line.strokeWidth = "1";//width of ruler line in pixels
+        let line = document.createElementNS("http://www.w3.org/2000/svg", "line")
+        line.setAttribute("x1", x1)
+        line.setAttribute("x2", x2)
+        line.setAttribute("y1", y1)
+        line.setAttribute("y2", y2)
+
+        line.id = ruler.subLabels[exponentIndex] + " Tick no. " + tickIndex //label for SVG editor
+        line.style.stroke = "black";//color of ruler line
+        line.style.strokeWidth = "1";//width of ruler line in pixels
+
+        line.setAttribute("stroke", "#000000")
+        line.setAttribute("stroke-width", "1")
 
         ruler.tickArray[ruler.masterTickIndex] = true //register the tick so it is not duplicated
+
         if (exponentIndex === 0) {//if is a primary tick, it needs a label
-            tickLabel(x1, y2, finalTick, offsetTickIndex, exponentIndex)
+            tickLabel(svgGroup, x1, y2, finalTick, offsetTickIndex, exponentIndex)
         }
+
+        svgGroup.appendChild(line)
+
     }
 }
 
-var tickLabel = function (x1, y2, finalTick, tickIndex, exponentIndex) {
+var tickLabel = function (svgGroup, x1, y2, finalTick, tickIndex, exponentIndex) {
     //label the tick
     var labelTextSize
     var labelTextSizeInches = 18
     var labelTextSizeCm = Math.round(labelTextSizeInches / ruler.cmPerInch)
-    if (ruler.units === "inches") { labelTextSize = labelTextSizeInches; }
-    else { labelTextSize = labelTextSizeCm; }
+
+    if (ruler.units === "inches") {
+        labelTextSize = labelTextSizeInches;
+    }
+    else {
+        labelTextSize = labelTextSizeCm
+    }
+
     var xLabelOffset = 4
     var yLabelOffset = 1
-    if (finalTick) { xLabelOffset = -1 * xLabelOffset }//last label is right justified
-    var text = new paper.PointText(new paper.Point(x1 + xLabelOffset, y2 + yLabelOffset));
-    text.justification = 'left';
-    if (finalTick) { text.justification = 'right'; }//last label is right justified
-    text.fillColor = 'black';
-    text.content = tickIndex;
-    text.style = {
-        // fontFamily: 'Helvetica',
-        fontFamily: 'monospace',
-        fontWeight: 'bold',
-        fontSize: labelTextSize
+
+    if (finalTick) {
+        // last label is right justified
+        xLabelOffset = -1 * xLabelOffset
     }
-    text.name = ruler.subLabels[exponentIndex] + " label no. " + tickIndex //label for SVG editor
+
+    let text = document.createElementNS("http://www.w3.org/2000/svg", "text")
+    text.setAttribute("x", x1 + xLabelOffset)
+    text.setAttribute("y", y2 + yLabelOffset)
+
+    console.log(text)
+
+    text.style.justifyContent = 'left';
+    if (finalTick) {
+        //last label is right justified
+        text.style.justifyContent = 'right';
+    }
+    text.style.color = 'black';
+    // text.style.fontFamily = 'Helvetica'
+    text.style.fontFamily = 'monospace'
+    text.style.fontWeight = 'bold'
+    text.style.fontSize = labelTextSize + "px";
+    // text.style.fontSize = 7,
+
+    text.textContent = tickIndex;
+
+    // text.id = ruler.subLabels[exponentIndex] + " label no. " + tickIndex //label for SVG editor
+    svgGroup.appendChild(text)
 }
 
 var debug = function () {
@@ -203,37 +252,47 @@ var updateVariables = function () {
 
 var build = function () {
     // Get a reference to the canvas object
-    var canvas = document.getElementById('myCanvas');
-    // Create an empty project and a view for the canvas:
-    paper.setup(canvas);
 
+    let serializer = new XMLSerializer();
+
+    let imgContainer = document.createElement("img")
+    let svgContainer = document.getElementById("svgContainer")
+    let svgs = svgContainer.getElementsByTagName("img")
+
+    if (svgs.length > 0) {
+        svgContainer.removeChild(svgs[0])
+    }
+
+    let svgDoc = document.implementation.createDocument("http://www.w3.org/2000/svg", "svg", null);
+    let svgRoot = svgDoc.documentElement;
 
     updateVariables()
     checkUnit()
     checkSubUnitBase()
     limitTickQty()
-    resizeCanvas()
-    constructRuler()
 
-    paper.view.draw();
+    resizeSVG(svgRoot)
+    constructRuler(svgRoot)
+
+    imgContainer.src = "data:image/svg+xml," + encodeURIComponent(serializer.serializeToString(svgDoc))
+    svgContainer.appendChild(imgContainer)
+
 }
 
 var exportSvg = function () {
-    //* I referenced the excellent SVG export example here: http://paperjs.org/features/#svg-import-and-export
     document.getElementById("svgexpbutton").onclick =
         function () {
-            exportWidth = document.getElementById("myCanvas").width
-            exportHeight = document.getElementById("myCanvas").height
-            viewBox = 'viewBox="0 0 ' + exportWidth + ' ' + exportHeight + '"'
-            dims = ' width= "' + exportWidth + '" height="' + exportHeight + ' " '
-            var svgPrefix = '<svg x="0" y="0"' + dims + viewBox + ' version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
-            // var svgPostfix = '</svg>';
-            var svg = paper.project.exportSVG({ asString: true, size: { width: exportWidth, height: exportHeight } });
 
-            var elem = document.getElementById("svgexpdata");
-            elem.value = 'data:image/svg+xml;base64,' + btoa(svg);
-            //btoa Creates a base-64 encoded ASCII string from a "string" of binary data
-            document.getElementById("svgexpform").submit();
+            let serializer = new XMLSerializer();
+            let svg = document.querySelector("#svgContainer > svg")
+
+            var link = document.createElement('a');
+            link.href = "data:image/svg+xml," + encodeURIComponent(serializer.serializeToString(svg))
+            link.download = 'ruler.svg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
         };
 
 }
