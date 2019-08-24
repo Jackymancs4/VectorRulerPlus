@@ -125,7 +125,7 @@ var constructRuler = function (svgRoot) {
         //loop thru each desired level of ticks, inches, halves, quarters, etc....
         var tickQty = ruler.width * Math.pow(ruler.subUnitBase, exponentIndex)
 
-        layerArray[exponentIndex] = document.createElement("g")
+        layerArray[exponentIndex] = document.createElementNS("http://www.w3.org/2000/svg", "g")
         layerArray[exponentIndex].id = ruler.subLabels[exponentIndex] + " Tick Group";
 
         var startNo = $('#startNo').val();
@@ -144,11 +144,11 @@ var constructRuler = function (svgRoot) {
             if (tickIndex === tickQty) { finalTick = true }
 
             var offsetTickIndex = parseInt(tickIndex) + parseInt(startNo)
-            tick(svgRoot, tickHeight, 0, tickIndex, offsetTickIndex, exponentIndex, tickSpacing, finalTick);
+            tick(layerArray[exponentIndex], tickHeight, 0, tickIndex, offsetTickIndex, exponentIndex, tickSpacing, finalTick);
             //draws the ticks
         }
 
-        // svgRoot.appendChild(layerArray[exponentIndex])
+        svgRoot.appendChild(layerArray[exponentIndex])
     }
 
 
