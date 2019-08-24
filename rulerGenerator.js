@@ -251,14 +251,8 @@ var updateVariables = function () {
 }
 
 var build = function () {
-    // Get a reference to the canvas object
-
-    let serializer = new XMLSerializer();
-
-    let imgContainer = document.createElement("img")
     let svgContainer = document.getElementById("svgContainer")
-    let svgs = svgContainer.getElementsByTagName("img")
-
+    let svgs = document.querySelector("#svgContainer > svg")
     if (svgs.length > 0) {
         svgContainer.removeChild(svgs[0])
     }
@@ -274,26 +268,22 @@ var build = function () {
     resizeSVG(svgRoot)
     constructRuler(svgRoot)
 
-    imgContainer.src = "data:image/svg+xml," + encodeURIComponent(serializer.serializeToString(svgDoc))
-    svgContainer.appendChild(imgContainer)
-
+    svgContainer.appendChild(svgRoot)
 }
 
 var exportSvg = function () {
-    document.getElementById("svgexpbutton").onclick =
-        function () {
+    document.getElementById("svgexpbutton").onclick = function () {
+        let serializer = new XMLSerializer();
+        let svg = document.querySelector("#svgContainer > svg")
+        let link = document.createElement('a');
 
-            let serializer = new XMLSerializer();
-            let svg = document.querySelector("#svgContainer > svg")
+        link.href = "data:image/svg+xml," + encodeURIComponent(serializer.serializeToString(svg))
+        link.download = 'ruler.svg';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-            var link = document.createElement('a');
-            link.href = "data:image/svg+xml," + encodeURIComponent(serializer.serializeToString(svg))
-            link.download = 'ruler.svg';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-        };
+    };
 
 }
 
