@@ -137,7 +137,7 @@ var constructRuler = function (svgRoot) {
         layerArray[exponentIndex] = document.createElementNS("http://www.w3.org/2000/svg", "g")
         layerArray[exponentIndex].id = ruler.subLabels[exponentIndex] + " Tick Group";
 
-        var startNo = $('#startNo').val();
+        var startNo = document.getElementById('startNo').value;
 
         highestTickDenomonatorMultiplier = ruler.ticksPerUnit / Math.pow(ruler.subUnitBase, exponentIndex)
         // to prevent reduntant ticks, this multiplier is applied to crrent units to ensure consistent indexing of ticks.
@@ -254,13 +254,13 @@ var debug = function () {
 }
 
 var updateVariables = function () {
-    ruler.units = $("input:radio[name=rulerUnits]:checked'").val();
-    ruler.subUnitBase = $("input:radio[name=subUnits]:checked'").val();
-    ruler.redundant = $("input:checkbox[name=redundant]:checked'").val();
-    ruler.width = $('#rulerWidth').val();
-    ruler.height = $('#rulerHeight').val();
-    ruler.subUnitExponent = $('#subUnitExponent').val();
-    ruler.levelToLevelMultiplier = $('#levelToLevelMultiplier').val();
+    ruler.units = document.querySelector("input[name=rulerUnits]:checked").value;
+    ruler.subUnitBase = document.querySelector("input[name=subUnits]:checked").value;
+    ruler.redundant = document.querySelector("input[name=redundant]").checked;
+    ruler.width = document.getElementById("rulerWidth").value;
+    ruler.height = document.getElementById('rulerHeight').value;
+    ruler.subUnitExponent = document.getElementById('subUnitExponent').value;
+    ruler.levelToLevelMultiplier = document.getElementById('levelToLevelMultiplier').value;
     ruler.cmPerInch = 2.54
 }
 
@@ -299,21 +299,21 @@ var exportSvg = function () {
 
     };
 
-}
+};
 
-$(document).ready(function () {
+(function () {
     console.log("\t Welcome to the Ruler Generator │╵│╵│╵│╵│╵│╵│")
     // When document is loaded, call build once
     build()
     // prints all values to browser console
     debug()
 
-    $("#rulerParameters").change(function () {
+    document.getElementById("rulerParameters").onChange = function () {
         // anytime anything within the form is altered, call build again
         build()
         // prints all values to browser console
         debug()
-    });
+    };
 
-    exportSvg()
-});
+    exportSvg();
+})();
