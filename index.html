@@ -35,11 +35,13 @@
                     </label>
                     <label>
                         <span>Units:</span>
+
+                    <Input type="radio" name="rulerUnits" value="in" checked> Inches
+                    <Input type="radio" name="rulerUnits" value="cm"> Centimeters <br>
+                    <Input type="radio" name="subUnits" value="2" checked> Fractonal
+                    <Input type="radio" name="subUnits" value="10"> Decimal
                     </label>
-                    <Input type="radio" name="rulerUnits" value="in" checked> Inches <Input type="radio"
-                        name="rulerUnits" value="cm"> Centimeters <br>
-                    <Input type="radio" name="subUnits" value="2" checked> Fractonal <Input type="radio" name="subUnits"
-                        value="10"> Decimal <label>
+                    <label>
                         <span>Subdivisions: </span>
                         <select id="subUnitExponent" style="width:30%">
                             <option value="0">Zero</option>
@@ -67,13 +69,13 @@
                         </select>
                     </label>
                     <label>
-                        <span></span>
+                        <span>Lines:</span>
+                        <input type="checkbox" name="redundant" id="redundant">Draw redundant lines<br>
                     </label>
-                    <input type="checkbox" name="redundant" id="redundant">Draw redundant lines<br>
                     <label>
                         <span>Orientation:</span>
                         <input type="checkbox" name="verticalFlip" id="verticalFlip">Flip vertically<br>
-
+                        <input type="checkbox" name="horizontalFlip" id="horizontalFlip">Flip horizontally<br>
                     </label>
                 </form>
                 <form id="svgexpform" method="post" action="http://download-data-uri.appspot.com/">

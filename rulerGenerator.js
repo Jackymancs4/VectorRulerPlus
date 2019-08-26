@@ -164,11 +164,18 @@ var constructRuler = function (svgRoot) {
 }
 
 var tick = function (svgGroup, tickHeight, horizPosition, tickIndex, offsetTickIndex, exponentIndex, tickSpacing, finalTick) {
-    // exponentIndex is 0-6, how small it is, 6 being smallest
-    let  x1 = horizPosition + (tickSpacing * tickIndex)
-    // x === x because lines are vertical
-    let  x2 = x1
-    let  y1, y2
+    let  x1, x2, y1, y2
+
+    if (!ruler.horizontalFlip) {
+        // all lines start at top of screen
+        // exponentIndex is 0-6, how small it is, 6 being smallest
+        x1 = horizPosition + (tickSpacing * tickIndex)
+        // x === x because lines are vertical
+        x2 = x1
+    } else {
+        x1 = ruler.width - (horizPosition + (tickSpacing * tickIndex))
+        x2 = x1
+    }
 
     if (!ruler.verticalFlip) {
         // all lines start at top of screen
@@ -238,6 +245,18 @@ var tickLabel = function (svgGroup, x1, y2, finalTick, tickIndex, exponentIndex)
     let text = document.createElementNS("http://www.w3.org/2000/svg", "text")
     text.setAttribute("text-anchor", "start")
 
+
+    if (ruler.horizontalFlip) {
+        finalTick = false
+
+        if (tickIndex == 0) {
+        // last label is right justified
+        xLabelOffset = -0.02
+        // last label is right justified
+        text.setAttribute("text-anchor", "end")
+        }
+    }
+
     if (finalTick) {
         // last label is right justified
         xLabelOffset = -0.02
@@ -279,6 +298,8 @@ var updateVariables = function () {
     ruler.levelToLevelMultiplier = document.getElementById('levelToLevelMultiplier').value;
     ruler.cmPerInch = 2.54
     ruler.verticalFlip = document.querySelector("input[name=verticalFlip]").checked;
+    ruler.horizontalFlip = document.querySelector("input[name=horizontalFlip]").checked;
+
 }
 
 var build = function () {
