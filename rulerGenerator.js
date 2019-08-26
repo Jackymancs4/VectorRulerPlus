@@ -165,13 +165,21 @@ var constructRuler = function (svgRoot) {
 
 var tick = function (svgGroup, tickHeight, horizPosition, tickIndex, offsetTickIndex, exponentIndex, tickSpacing, finalTick) {
     // exponentIndex is 0-6, how small it is, 6 being smallest
-    var x1 = horizPosition + (tickSpacing * tickIndex)
+    let  x1 = horizPosition + (tickSpacing * tickIndex)
     // x === x because lines are vertical
-    var x2 = x1
-    // all lines start at top of screen
-    var y1 = 0
-    // downward
-    var y2 = tickHeight
+    let  x2 = x1
+    let  y1, y2
+
+    if (!ruler.verticalFlip) {
+        // all lines start at top of screen
+        y1 = 0
+        // downward
+        y2 = tickHeight
+    } else {
+        y1 = ruler.height
+        y2 = ruler.height - tickHeight
+    }
+
 
     if (ruler.tickArray[ruler.masterTickIndex] === undefined || ruler.redundant) {
         // if no tick exists already, or if we want redundant lines, draw the tick.
@@ -216,8 +224,16 @@ var tickLabel = function (svgGroup, x1, y2, finalTick, tickIndex, exponentIndex)
         labelTextSize = labelTextSizeCm
     }
 
-    var xLabelOffset = 0.02
-    var yLabelOffset = -0.02
+    let xLabelOffset
+    let yLabelOffset
+
+    if (!ruler.verticalFlip) {
+        xLabelOffset = 0.02
+        yLabelOffset = -0.02
+    } else {
+        xLabelOffset = 0.02
+        yLabelOffset = 0.15
+    }
 
     let text = document.createElementNS("http://www.w3.org/2000/svg", "text")
     text.setAttribute("text-anchor", "start")
@@ -262,6 +278,7 @@ var updateVariables = function () {
     ruler.subUnitExponent = document.getElementById('subUnitExponent').value;
     ruler.levelToLevelMultiplier = document.getElementById('levelToLevelMultiplier').value;
     ruler.cmPerInch = 2.54
+    ruler.verticalFlip = document.querySelector("input[name=verticalFlip]").checked;
 }
 
 var build = function () {
@@ -308,7 +325,7 @@ var exportSvg = function () {
     // prints all values to browser console
     debug()
 
-    document.getElementById("rulerParameters").onChange = function () {
+    document.getElementById("rulerParameters").onchange = function () {
         // anytime anything within the form is altered, call build again
         build()
         // prints all values to browser console
