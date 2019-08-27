@@ -114,10 +114,18 @@ var resizeSVG = function (svgRoot) {
     svgRoot.setAttribute("x", "0")
     svgRoot.setAttribute("y", "0")
 
-    svgRoot.setAttribute("width", ruler.width + ruler.units)
-    svgRoot.setAttribute("height", ruler.height + ruler.units)
+    let width = ruler.width
+    let height = ruler.height
 
-    svgRoot.setAttribute("viewBox", "0" + ruler.units + " 0" + ruler.units + " " + ruler.width + ruler.units + "" + ruler.height +  + ruler.units)
+    if (ruler.verticalRuler) {
+        width = ruler.height
+        height = ruler.width
+    }
+
+    svgRoot.setAttribute("width", width + ruler.units)
+    svgRoot.setAttribute("height", height + ruler.units)
+
+    svgRoot.setAttribute("viewBox", "0" + ruler.units + " 0" + ruler.units + " " + width + ruler.units + "" + height + + ruler.units)
 
     svgRoot.setAttribute("xmlns", "http://www.w3.org/2000/svg")
     svgRoot.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink")
@@ -164,7 +172,7 @@ var constructRuler = function (svgRoot) {
 }
 
 var tick = function (svgGroup, tickHeight, horizPosition, tickIndex, offsetTickIndex, exponentIndex, tickSpacing, finalTick) {
-    let  x1, x2, y1, y2
+    let x1, x2, y1, y2
 
     if (!ruler.horizontalFlip) {
         // all lines start at top of screen
@@ -187,6 +195,26 @@ var tick = function (svgGroup, tickHeight, horizPosition, tickIndex, offsetTickI
         y2 = ruler.height - tickHeight
     }
 
+    // A----B  C----A
+    // |    |=>|    |
+    // C----D  D----B
+
+    // A=(x1,y1)
+    // B=(x1+w,y1)
+    // C=(x1,y1+h)
+    // D=(x2,y2)
+
+    if (ruler.verticalRuler) {
+        let tempX1 = x1
+        let tempX2 = x2
+        let tempY1 = y1
+        let tempY2 = y2
+
+        x1 = ruler.height - tempY1
+        x2 = ruler.height - tempY2
+        y1 = tempX1
+        y2 = tempX2
+    }
 
     if (ruler.tickArray[ruler.masterTickIndex] === undefined || ruler.redundant) {
         // if no tick exists already, or if we want redundant lines, draw the tick.
@@ -245,15 +273,47 @@ var tickLabel = function (svgGroup, x1, y2, finalTick, tickIndex, exponentIndex)
     let text = document.createElementNS("http://www.w3.org/2000/svg", "text")
     text.setAttribute("text-anchor", "start")
 
+    if (ruler.verticalRuler) {
+        x1 = ruler.height - x1
+        if (ruler.verticalFlip) {
+            xLabelOffset = -0.05
+            text.setAttribute("text-anchor", "end")
+        } else
+            xLabelOffset = 0.05
 
-    if (ruler.horizontalFlip) {
+        if (ruler.horizontalFlip) {
+
+            if (tickIndex == 0) {
+                xLabelOffset = 0.05
+                yLabelOffset = -0.05
+                text.setAttribute("text-anchor", "start")
+            }
+
+            if (finalTick) {
+                finalTick = false
+                yLabelOffset = 0.15
+            }
+        } else {
+            if (tickIndex == 0) {
+                yLabelOffset = 0.15
+            }
+
+            if (finalTick) {
+                finalTick = false
+                yLabelOffset = -0.05
+            }
+        }
+
+    }
+
+    if (ruler.horizontalFlip & !ruler.verticalRuler) {
         finalTick = false
 
         if (tickIndex == 0) {
-        // last label is right justified
-        xLabelOffset = -0.02
-        // last label is right justified
-        text.setAttribute("text-anchor", "end")
+            // last label is right justified
+            xLabelOffset = -0.02
+            // last label is right justified
+            text.setAttribute("text-anchor", "end")
         }
     }
 
@@ -264,8 +324,8 @@ var tickLabel = function (svgGroup, x1, y2, finalTick, tickIndex, exponentIndex)
         text.setAttribute("text-anchor", "end")
     }
 
-    text.setAttribute("x", x1 + xLabelOffset + ruler.units)
-    text.setAttribute("y", y2 + yLabelOffset + ruler.units)
+    text.setAttribute("x", (x1 + xLabelOffset) + ruler.units)
+    text.setAttribute("y", (y2 + yLabelOffset) + ruler.units)
 
     text.style.color = 'black';
     // text.style.fontFamily = 'Helvetica'
@@ -292,14 +352,14 @@ var updateVariables = function () {
     ruler.units = document.querySelector("input[name=rulerUnits]:checked").value;
     ruler.subUnitBase = document.querySelector("input[name=subUnits]:checked").value;
     ruler.redundant = document.querySelector("input[name=redundant]").checked;
-    ruler.width = document.getElementById("rulerWidth").value;
-    ruler.height = document.getElementById('rulerHeight').value;
+    ruler.width = Number(document.getElementById("rulerWidth").value);
+    ruler.height = Number(document.getElementById('rulerHeight').value);
     ruler.subUnitExponent = document.getElementById('subUnitExponent').value;
     ruler.levelToLevelMultiplier = document.getElementById('levelToLevelMultiplier').value;
     ruler.cmPerInch = 2.54
     ruler.verticalFlip = document.querySelector("input[name=verticalFlip]").checked;
     ruler.horizontalFlip = document.querySelector("input[name=horizontalFlip]").checked;
-
+    ruler.verticalRuler = document.querySelector("input[name=verticalRuler]").checked;
 }
 
 var build = function () {
