@@ -9,16 +9,14 @@
         <meta name="keywords" content="Ilustrator,Vector,Vector Ruler, SVG, SVG ruler, Javascript SVG">
         <meta name="author" content="Robb Godshaw">
         <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
     </head>
 
     <body>
         <div class="bootstrap-frm">
-            <div class="ribbon">
-                <a href="https://github.com/robbbb/VectorRuler"><img  src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
-            </div>
+                <a class="github-fork-ribbon" href="http://github.com/jackymancs4/vectorrulerplus" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
             <div class="bootstrap-padded">
-                <h1>Vector Ruler Generator <span>Download a laser cuttable ruler to etch into your belongings and
-                        belts.</span>
+                <h1>Vector Ruler Generator <span>Download a SVG ruler ready to be used in Inkscape or Illustrator</span>
                 </h1>
                 <form id="rulerParameters" action="">
                     <label>
@@ -38,6 +36,7 @@
 
                     <Input type="radio" name="rulerUnits" value="in" checked> Inches
                     <Input type="radio" name="rulerUnits" value="cm"> Centimeters <br>
+                        <span>Subunits:</span>
                     <Input type="radio" name="subUnits" value="2" checked> Fractonal
                     <Input type="radio" name="subUnits" value="10"> Decimal
                     </label>
@@ -74,6 +73,7 @@
                     </label>
                     <label>
                         <span>Orientation:</span>
+                        <br>
                         <input type="checkbox" name="verticalFlip" id="verticalFlip">Flip vertically<br>
                         <input type="checkbox" name="horizontalFlip" id="horizontalFlip">Flip horizontally<br>
                         <input type="checkbox" name="verticalRuler" id="verticalRuler">Turn the ruler by 90°<br>
@@ -88,7 +88,7 @@
                 </form>
                 <hr>
             </div>
-            <div id="svgContainer" style="height: 200px; width: 100%; overflow-y:scroll; overflow-x:scroll;">
+            <div id="svgContainer">
             </div>
         </div>
         <script type="text/javascript" src="rulerGenerator.js"></script>
